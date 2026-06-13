@@ -63,6 +63,16 @@ class NotesServicer(notes_pb2_grpc.NotesServiceServicer):
             for row in cur.fetchall():
                 yield notes_pb2.Note(id=str(row[0]), title=row[1], body=row[2])
 
+    def DeleteAllNotes(self, request, context):
+        with self.conn.cursor() as cur:
+            cur.execute("DELETE FROM notes RETURNING id")
+            deleted_ids = [str(row[0]) for row in cur.fetchall()]
+            self.conn.commit()
+        if deleted_ids:
+            self.rdb.delete(*[f"note:{id}" for id in deleted_ids])
+        log.info("DeleteAllNotes: removed %d notes", len(deleted_ids))
+        return notes_pb2.DeleteAllNotesResponse(deleted=len(deleted_ids))
+
 
 def serve():
     servicer = NotesServicer()

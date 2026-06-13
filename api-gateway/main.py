@@ -75,6 +75,12 @@ async def list_notes():
     return notes
 
 
+@app.delete("/notes")
+async def delete_all_notes():
+    resp = await grpc_clients.notes_stub.DeleteAllNotes(notes_pb2.DeleteAllNotesRequest())
+    return {"deleted": resp.deleted}
+
+
 # ---------- products routes ----------
 
 @app.post("/products", status_code=201)

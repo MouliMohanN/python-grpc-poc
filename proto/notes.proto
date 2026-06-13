@@ -5,9 +5,10 @@ package notes;
 option go_package = "github.com/moulimohann/grpc-poc/go-server/gen/notes";
 
 service NotesService {
-  rpc CreateNote  (CreateNoteRequest)  returns (CreateNoteResponse);
-  rpc GetNote     (GetNoteRequest)     returns (Note);
-  rpc StreamNotes (StreamNotesRequest) returns (stream Note);
+  rpc CreateNote    (CreateNoteRequest)    returns (CreateNoteResponse);
+  rpc GetNote       (GetNoteRequest)       returns (Note);
+  rpc StreamNotes   (StreamNotesRequest)   returns (stream Note);
+  rpc DeleteAllNotes(DeleteAllNotesRequest) returns (DeleteAllNotesResponse);
 }
 
 message Note {
@@ -30,3 +31,9 @@ message GetNoteRequest {
 }
 
 message StreamNotesRequest {}
+
+message DeleteAllNotesRequest {}
+
+message DeleteAllNotesResponse {
+  int32 deleted = 1;
+}
