@@ -7,8 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from gen import notes_pb2, products_pb2
-from grpc_clients import close_clients, init_clients, notes_stub, products_stub
-import grpc_clients
+from grpc_clients_v2 import close_clients, init_clients, verify_via_reflection
+import grpc_clients_v2 as grpc_clients
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_clients()
+    await verify_via_reflection()
     yield
     await close_clients()
 
