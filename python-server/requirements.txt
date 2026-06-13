@@ -1,0 +1,4 @@
+grpcio==1.68.1
+grpcio-tools==1.68.1
+psycopg[binary]==3.3.4
+redis==5.2.1

@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package products;
+
+option go_package = "github.com/moulimohann/grpc-poc/go-server/gen";
+
+service ProductsService {
+  rpc CreateProduct  (CreateProductRequest)  returns (CreateProductResponse);
+  rpc GetProduct     (GetProductRequest)     returns (Product);
+  rpc StreamProducts (StreamProductsRequest) returns (stream Product);
+}
+
+message Product {
+  string id       = 1;
+  string name     = 2;
+  string category = 3;
+  double price    = 4;
+}
+
+message CreateProductRequest {
+  string name     = 1;
+  string category = 2;
+  double price    = 3;
+}
+
+message CreateProductResponse {
+  string id = 1;
+}
+
+message GetProductRequest {
+  string id = 1;
+}
+
+message StreamProductsRequest {
+  string category = 1;
+}
