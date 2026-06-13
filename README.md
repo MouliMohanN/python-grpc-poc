@@ -26,3 +26,5 @@ React :5173  →  FastAPI gateway :8000  →  Go server :50051  (ProductsService
 - [Generated notes stubs deep dive](docs/generated-notes-stubs-deep-dive.md) — what `notes_pb2.py` and `notes_pb2_grpc.py` actually do, line by line
 - [gen_proto.sh deep dive](docs/gen-proto-script-deep-dive.md) — how the code generation script works, flag by flag
 - [Schema registry deep dive](docs/schema-registry-deep-dive.md) — why registries exist, how Buf works, breaking change rules, and how this project would look with BSR
+- [Push-based proto registration deep dive](docs/push-based-proto-registration-deep-dive.md) — servers push their contract to the gateway at startup; naive approach vs production approach (FileDescriptorSet + Consul)
+- [gRPC reflection deep dive](docs/grpc-reflection-deep-dive.md) — gateway pulls schema live from servers at runtime; reflection protocol, Consul + reflection as the cleanest production approach, grpcurl/grpcui tooling, security trade-offs, and comparison of all approaches
