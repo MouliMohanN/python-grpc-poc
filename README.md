@@ -22,3 +22,5 @@ React :5173  →  FastAPI gateway :8000  →  Go server :50051  (ProductsService
 ## Docs
 
 - [Setup guide](docs/setup.md) — prerequisites, venv setup, proto generation, running all services
+- [gRPC clients deep dive](docs/grpc-clients-deep-dive.md) — how channels, stubs, and async wiring work in the API gateway
+- [Generated notes stubs deep dive](docs/generated-notes-stubs-deep-dive.md) — what `notes_pb2.py` and `notes_pb2_grpc.py` actually do, line by line
