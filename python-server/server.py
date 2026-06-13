@@ -6,6 +6,7 @@ from concurrent import futures
 import grpc
 import psycopg
 import redis
+from grpc_reflection.v1alpha import reflection
 
 from gen import notes_pb2, notes_pb2_grpc
 
@@ -67,6 +68,10 @@ def serve():
     servicer = NotesServicer()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     notes_pb2_grpc.add_NotesServiceServicer_to_server(servicer, server)
+    reflection.enable_server_reflection(
+        [notes_pb2.DESCRIPTOR.services_by_name["NotesService"].full_name, reflection.SERVICE_NAME],
+        server,
+    )
     server.add_insecure_port("[::]:50052")
     server.start()
     log.info("NotesService listening on :50052")

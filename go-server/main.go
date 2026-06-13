@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	registerProductsServer(grpcServer, srv)
+	reflection.Register(grpcServer)
 
 	log.Println("ProductsService listening on :50051")
 	if err := grpcServer.Serve(lis); err != nil {
