@@ -186,6 +186,53 @@ Then restart the affected services.
 
 ---
 
+## Seed and delete notes
+
+Scripts live in `scripts/` and talk to the REST gateway — make sure the full stack is running first.
+
+### Seed 1000 notes
+
+```bash
+python scripts/seed_notes.py
+```
+
+Expected output:
+```
+Inserting 1000 notes into http://localhost:8000 ...
+  100/1000
+  200/1000
+  ...
+  Done — 1000 notes inserted.
+```
+
+Custom count:
+
+```bash
+python scripts/seed_notes.py 500
+```
+
+### Delete all notes
+
+```bash
+python scripts/delete_notes.py
+# Deleted 1000 notes.
+```
+
+This removes all rows from the `notes` table **and** flushes the matching Redis cache keys in one gRPC call.
+
+### Verify via curl
+
+```bash
+# Check count after seeding
+curl -s http://localhost:8000/notes | python3 -c "import sys,json; print(len(json.load(sys.stdin)))"
+
+# Delete and confirm
+curl -s -X DELETE http://localhost:8000/notes | python3 -m json.tool
+# { "deleted": 1000 }
+```
+
+---
+
 ## Stopping everything
 
 ```bash

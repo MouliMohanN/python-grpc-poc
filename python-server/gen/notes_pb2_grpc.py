@@ -49,6 +49,11 @@ class NotesServiceStub(object):
                 request_serializer=notes__pb2.StreamNotesRequest.SerializeToString,
                 response_deserializer=notes__pb2.Note.FromString,
                 _registered_method=True)
+        self.DeleteAllNotes = channel.unary_unary(
+                '/notes.NotesService/DeleteAllNotes',
+                request_serializer=notes__pb2.DeleteAllNotesRequest.SerializeToString,
+                response_deserializer=notes__pb2.DeleteAllNotesResponse.FromString,
+                _registered_method=True)
 
 
 class NotesServiceServicer(object):
@@ -72,6 +77,12 @@ class NotesServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def DeleteAllNotes(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NotesServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -89,6 +100,11 @@ def add_NotesServiceServicer_to_server(servicer, server):
                     servicer.StreamNotes,
                     request_deserializer=notes__pb2.StreamNotesRequest.FromString,
                     response_serializer=notes__pb2.Note.SerializeToString,
+            ),
+            'DeleteAllNotes': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteAllNotes,
+                    request_deserializer=notes__pb2.DeleteAllNotesRequest.FromString,
+                    response_serializer=notes__pb2.DeleteAllNotesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -172,6 +188,33 @@ class NotesService(object):
             '/notes.NotesService/StreamNotes',
             notes__pb2.StreamNotesRequest.SerializeToString,
             notes__pb2.Note.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DeleteAllNotes(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/notes.NotesService/DeleteAllNotes',
+            notes__pb2.DeleteAllNotesRequest.SerializeToString,
+            notes__pb2.DeleteAllNotesResponse.FromString,
             options,
             channel_credentials,
             insecure,

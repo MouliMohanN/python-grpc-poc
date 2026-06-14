@@ -35,8 +35,13 @@ echo "==> Generating Python stubs for products (api-gateway)"
 echo "==> Fixing relative imports in generated Python files"
 for f in "$ROOT/python-server/gen/"*_pb2_grpc.py "$ROOT/api-gateway/gen/"*_pb2_grpc.py; do
   [ -f "$f" ] || continue
-  sed -i '' 's/^import \(.*_pb2\) as/from . import \1 as/' "$f" 2>/dev/null || \
-  sed -i 's/^import \(.*_pb2\) as/from . import \1 as/' "$f"
+  "$PYTHON" -c "
+import re, sys
+path = sys.argv[1]
+text = open(path).read()
+fixed = re.sub(r'^import (\S+_pb2) as', r'from . import \1 as', text, flags=re.MULTILINE)
+open(path, 'w').write(fixed)
+" "$f"
 done
 
 touch "$ROOT/python-server/gen/__init__.py"

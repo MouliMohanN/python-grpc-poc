@@ -6,8 +6,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from gen import notes_pb2, products_pb2
-from grpc_clients_v2 import close_clients, init_clients, verify_via_reflection
 import grpc_clients_v2 as grpc_clients
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -15,10 +13,9 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_clients()
-    await verify_via_reflection()
+    await grpc_clients.init_clients()
     yield
-    await close_clients()
+    await grpc_clients.close_clients()
 
 
 app = FastAPI(title="gRPC POC Gateway", lifespan=lifespan)
@@ -31,7 +28,7 @@ app.add_middleware(
 )
 
 
-# ---------- request / response models ----------
+# ---------- request models ----------
 
 class CreateNoteRequest(BaseModel):
     title: str
@@ -48,19 +45,19 @@ class CreateProductRequest(BaseModel):
 
 @app.post("/notes", status_code=201)
 async def create_note(req: CreateNoteRequest):
-    resp = await grpc_clients.notes_stub.CreateNote(
-        notes_pb2.CreateNoteRequest(title=req.title, body=req.body)
+    return await grpc_clients.call_unary(
+        "notes", "notes.NotesService", "CreateNote",
+        {"title": req.title, "body": req.body},
     )
-    return {"id": resp.id}
 
 
 @app.get("/notes/{note_id}")
 async def get_note(note_id: str):
     try:
-        note = await grpc_clients.notes_stub.GetNote(
-            notes_pb2.GetNoteRequest(id=note_id)
+        return await grpc_clients.call_unary(
+            "notes", "notes.NotesService", "GetNote",
+            {"id": note_id},
         )
-        return {"id": note.id, "title": note.title, "body": note.body}
     except grpc.aio.AioRpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
             raise HTTPException(status_code=404, detail=str(e.details()))
@@ -70,34 +67,37 @@ async def get_note(note_id: str):
 @app.get("/notes")
 async def list_notes():
     notes = []
-    async for note in grpc_clients.notes_stub.StreamNotes(notes_pb2.StreamNotesRequest()):
-        notes.append({"id": note.id, "title": note.title, "body": note.body})
+    async for note in grpc_clients.call_server_stream(
+        "notes", "notes.NotesService", "StreamNotes", {}
+    ):
+        notes.append(note)
     return notes
 
 
 @app.delete("/notes")
 async def delete_all_notes():
-    resp = await grpc_clients.notes_stub.DeleteAllNotes(notes_pb2.DeleteAllNotesRequest())
-    return {"deleted": resp.deleted}
+    return await grpc_clients.call_unary(
+        "notes", "notes.NotesService", "DeleteAllNotes", {}
+    )
 
 
 # ---------- products routes ----------
 
 @app.post("/products", status_code=201)
 async def create_product(req: CreateProductRequest):
-    resp = await grpc_clients.products_stub.CreateProduct(
-        products_pb2.CreateProductRequest(name=req.name, category=req.category, price=req.price)
+    return await grpc_clients.call_unary(
+        "products", "products.ProductsService", "CreateProduct",
+        {"name": req.name, "category": req.category, "price": req.price},
     )
-    return {"id": resp.id}
 
 
 @app.get("/products/{product_id}")
 async def get_product(product_id: str):
     try:
-        product = await grpc_clients.products_stub.GetProduct(
-            products_pb2.GetProductRequest(id=product_id)
+        return await grpc_clients.call_unary(
+            "products", "products.ProductsService", "GetProduct",
+            {"id": product_id},
         )
-        return {"id": product.id, "name": product.name, "category": product.category, "price": product.price}
     except grpc.aio.AioRpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
             raise HTTPException(status_code=404, detail=str(e.details()))
@@ -107,8 +107,9 @@ async def get_product(product_id: str):
 @app.get("/products")
 async def list_products(category: str = ""):
     products = []
-    async for p in grpc_clients.products_stub.StreamProducts(
-        products_pb2.StreamProductsRequest(category=category)
+    async for p in grpc_clients.call_server_stream(
+        "products", "products.ProductsService", "StreamProducts",
+        {"category": category},
     ):
-        products.append({"id": p.id, "name": p.name, "category": p.category, "price": p.price})
+        products.append(p)
     return products

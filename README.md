@@ -29,3 +29,4 @@ React :5173  →  FastAPI gateway :8000  →  Go server :50051  (ProductsService
 - [Push-based proto registration deep dive](docs/push-based-proto-registration-deep-dive.md) — servers push their contract to the gateway at startup; naive approach vs production approach (FileDescriptorSet + Consul)
 - [gRPC reflection deep dive](docs/grpc-reflection-deep-dive.md) — gateway pulls schema live from servers at runtime; reflection protocol, env-var-based service discovery, grpcurl/grpcui tooling, security trade-offs, and comparison of all approaches
 - [Testing with grpcurl and grpcui](docs/grpc-testing.md) — call every RPC directly against the running servers, verify streaming, check cache hit/miss logs
+- [Pure reflection gateway deep dive](docs/pure-reflection-gateway-deep-dive.md) — how grpc_clients_v2.py works end to end: descriptor pool, dynamic message classes, raw channel calls, and how main.py lost all pb2 imports
